@@ -21,6 +21,7 @@ class WaveformGenerator {
       int photons_in_ch;
       std::vector<double> sorted_times;
       std::vector<double> areas;     
+      double peak_area;
  
       int t1;  // Singlet time constant
       int t3;  // Triplet time constant
@@ -42,6 +43,7 @@ class WaveformGenerator {
       void GenPhotonArrivalTimes();
       void GenerateWaveform();  
       void GenerateNewWaveform();
+      void GenPeakArea();
 
       double GetT1() { return t1; }
       double GetT3() { return t3; }
@@ -51,6 +53,7 @@ class WaveformGenerator {
       int GetPhotonsInCh()    { return photons_in_ch; }
       std::vector<double> GetSortedTimes() { return sorted_times; }
       std::vector<double> GetAreas() { return areas; }
+      double GetPeakArea() { return peak_area; }
       TGraph GetWaveform() { return waveform; }
       std::vector<double> GetWaveVec() { return wave_vec; } 
       double GetTraceStart() { return trace_start; }

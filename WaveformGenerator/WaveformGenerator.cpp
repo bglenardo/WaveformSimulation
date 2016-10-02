@@ -130,6 +130,27 @@ void WaveformGenerator::GenerateWaveform() {
 
   }
 
+  GenPeakArea();
+
+}
+
+
+/************************************************************************
+     GenerateWaveform
+************************************************************************/
+
+void WaveformGenerator::GenPeakArea() {
+
+   if( wave_vec.size() == 0) {
+      peak_area = 0.;
+      return;
+   }
+
+   for( std::vector<double>::size_type i=0; i<wave_vec.size(); i++) {
+     peak_area += wave_vec[i];
+   }
+
+
 }
 
 
