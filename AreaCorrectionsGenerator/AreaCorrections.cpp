@@ -31,7 +31,9 @@ int main(int argc, char * argv[]) {
    time_t end_time;
    time(&start_time);
    bool print_assignments = false;
-   TFile * outfile = new TFile("AreaCorrections.root","RECREATE");
+   char outfile_name[100];
+   sprintf(outfile_name,"AreaCorrections%03d.root",photons_in_array);
+   TFile * outfile = new TFile(outfile_name,"RECREATE");
    
    double results[20];
    double results_err[20];
@@ -59,8 +61,8 @@ int main(int argc, char * argv[]) {
       WaveformGenerator w;
       w.SetPhotonsInArray( photons_in_array );
 
-   for(int ii=0; ii<1000; ii++) {
-      if( ii % 100 == 0 ) printf("Running %d...\n",ii);
+   for(int ii=0; ii<1000000; ii++) {
+      if( ii % 1000 == 0 ) printf("Running %d...\n",ii);
       true_times.clear();
       fit_times.clear();
       fit_num.clear();
@@ -98,13 +100,9 @@ int main(int argc, char * argv[]) {
           fit_area_bins[fit_area_index]->Fill( fit_num[ph] );
        }
      }
-         
-     
-   
+     else
+         fit_area_bins[0]->Fill( 0. ); 
    }
-
-
-
 
    outfile->Write();
    outfile->Close();
