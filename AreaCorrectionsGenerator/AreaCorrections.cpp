@@ -6,10 +6,26 @@
 #include "TH1.h"
 #include "../PhotonTiming/SPEFunctions_Rose_test.h"
 #include <ctime>
+#include <sstream>
+#include <string>
+#include <iostream>
 
 std::vector<int> AssignTrueToFitPhotons( std::vector<double> true_times, std::vector<double> fit_times);
 
-int main() {
+int main(int argc, char * argv[]) {
+
+   int photons_in_array;
+   if(argc > 1) {
+     std::stringstream arg_in( argv[1] );
+     if(!(arg_in >> photons_in_array)){
+        std::cerr << "Invalid number of photons...\nExiting...." << std::endl;
+        return 1;
+     }
+   }
+   else
+      photons_in_array = 100;
+   
+   std::cout << "\nPhotons in array: "  << photons_in_array << "\n" << std::endl;
 
    time_t start_time;
    time_t end_time;
@@ -41,7 +57,7 @@ int main() {
    }
 
       WaveformGenerator w;
-      w.SetPhotonsInArray(100);
+      w.SetPhotonsInArray( photons_in_array );
 
    for(int ii=0; ii<1000; ii++) {
       if( ii % 100 == 0 ) printf("Running %d...\n",ii);

@@ -41,9 +41,10 @@ clean:
 	rm -f ./build/PhotonAreaDistributions.o
 	rm -f ./build/WaveformGenerator.o
 	rm -f ./build/*.o
+	rm -f ./AreaCorrections
 
 distclean:
-	rm -f ./FitterTest
-	rm -f ./FitterTest.o
+	rm -f ./AreaCorrections
+	rm -f ./build/AreaCorrections.o
 	@echo Removing all object files from build directory.
 	@rm -f $(OBJS)
