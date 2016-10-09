@@ -32,7 +32,7 @@ int main(int argc, char * argv[]) {
    time(&start_time);
    bool print_assignments = false;
    char outfile_name[100];
-   sprintf(outfile_name,"AreaCorrections%03d.root",photons_in_array);
+   sprintf(outfile_name,"/p/lscratchd/lenardo1/NewAreaCorrections/AreaCorrections%03d_ph_0_20.root",photons_in_array);
    TFile * outfile = new TFile(outfile_name,"RECREATE");
    
    double results[20];
@@ -61,8 +61,8 @@ int main(int argc, char * argv[]) {
       WaveformGenerator w;
       w.SetPhotonsInArray( photons_in_array );
 
-   for(int ii=0; ii<1000000; ii++) {
-      if( ii % 1000 == 0 ) printf("Running %d...\n",ii);
+   for(int ii=0; ii<500000; ii++) {
+      if( ii % 100== 0 ) std::cout << "Running " << ii << "..." << std::endl;
       true_times.clear();
       fit_times.clear();
       fit_num.clear();
@@ -109,7 +109,7 @@ int main(int argc, char * argv[]) {
 
    time(&end_time);
    double seconds = difftime(end_time,start_time);
-   printf("Run time: %4.4f minutes.\n",seconds/60.);
+   std::cout << "Run time: " << seconds/60. << " minutes." << std::endl;
 
 
    return 1;
