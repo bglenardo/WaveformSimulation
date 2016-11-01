@@ -22,12 +22,14 @@ class WaveformGenerator {
       std::vector<double> sorted_times;
       std::vector<double> areas;     
       double peak_area;
+      double aft_t05_samples;
+      double aft_t25_samples;
  
-      int t1;  // Singlet time constant
-      int t3;  // Triplet time constant
-      int tr;  // Reflection time constant
-      int sig;  // Normal smearing
-      int singlet_fraction;
+      double t1;  // Singlet time constant
+      double t3;  // Triplet time constant
+      double tr;  // Reflection time constant
+      double sig;  // Normal smearing
+      double singlet_fraction;
 
       TRandom3 r;
 
@@ -44,6 +46,7 @@ class WaveformGenerator {
       void GenerateWaveform();  
       void GenerateNewWaveform();
       void GenPeakArea();
+      void GenAftTimes();
 
       double GetT1() { return t1; }
       double GetT3() { return t3; }
@@ -57,6 +60,8 @@ class WaveformGenerator {
       TGraph GetWaveform() { return waveform; }
       std::vector<double> GetWaveVec() { return wave_vec; } 
       double GetTraceStart() { return trace_start; }
+      double GetAftT25Samples() { return aft_t25_samples; }
+      double GetAftT05Samples() { return aft_t05_samples; }
 
       void SetT1( double t1_set ) { t1 = t1_set; }
       void SetT3( double t3_set ) { t3 = t3_set; }
@@ -65,6 +70,7 @@ class WaveformGenerator {
       void SetSingletFraction( double singlet_fraction_set ) { singlet_fraction = singlet_fraction_set; }
 
       void SetPhotonsInArray( int photons_in_array_set ) { photons_in_array = photons_in_array_set; }
+      void SetPhotonsInCh( int photons_in_ch_set ) { photons_in_ch = photons_in_ch_set; }
       
 };
 

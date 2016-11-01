@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "SPEFunctions.hh"
 #include "WaveformGenerator.hh" 
+#include <iostream>
 
 /************************************************************************
      WaveformGenerator (constructor)
@@ -11,15 +12,18 @@
 WaveformGenerator::WaveformGenerator() {
 
    t1 = 0.31;
-   t3 = 2.4;
-   tr = 1.8;
-   sig = 0.55;
+   t3 = 2.7;
+   tr = 1.08;
+   sig = 0.75;
    singlet_fraction = 0.4;
  
    r.SetSeed(0);
 
    photons_in_array = 0;
    photons_in_ch = 0;
+   aft_t25_samples = -100.;
+   aft_t05_samples = -100.;
+
       
 }
 
@@ -102,6 +106,9 @@ void WaveformGenerator::GenerateWaveform() {
    double end = 30.;
    wave_vec.clear();
    waveform.Set(0);
+   trace_start = -100.;
+   aft_t25_samples = -100.;
+   aft_t05_samples = -100.;
 
    if(photons_in_ch > 0) {
       start = sorted_times[0] - 20. + r.Uniform();
@@ -131,7 +138,7 @@ void WaveformGenerator::GenerateWaveform() {
   }
 
   GenPeakArea();
-
+  GenAftTimes();
 }
 
 
@@ -140,7 +147,7 @@ void WaveformGenerator::GenerateWaveform() {
 ************************************************************************/
 
 void WaveformGenerator::GenPeakArea() {
-
+   peak_area = 0.;
    if( wave_vec.size() == 0) {
       peak_area = 0.;
       return;
@@ -166,3 +173,29 @@ void WaveformGenerator::GenerateNewWaveform() {
    GenerateWaveform();
 
 }
+
+/************************************************************************
+     GenAftTimes
+************************************************************************/
+
+void WaveformGenerator::GenAftTimes() {
+   
+   double sum = 0.;
+   bool found_aft_t05 = false, 
+        found_aft_t25 = false;
+
+   for(int i=0; i<wave_vec.size(); i++) {
+      sum += wave_vec[i];
+      if( sum > 0.05*peak_area && !found_aft_t05) {
+        aft_t05_samples = (double) i + trace_start;
+        found_aft_t05 = true;
+      }
+      if( sum > 0.25*peak_area && !found_aft_t25) {
+        aft_t25_samples = (double) i + trace_start;
+        found_aft_t25 = true;
+      }
+
+   }
+}
+
+

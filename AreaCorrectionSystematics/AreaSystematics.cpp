@@ -19,12 +19,15 @@ double SampleFromPhdDist();
 
 int main(int argc, char * argv[]) {
 
-   if(argc > 1) {
-        std::cerr << "We shouldn't have any inputs...\nExiting...." << std::endl;
+   if(argc > 2) {
+        std::cerr << "Too many inputs...\nExiting...." << std::endl;
+        return 1;
+   } else if (argc < 2) {
+        std::cerr << "Please specify run #...\nExiting..." << std::endl;
         return 1;
    }
 
-   int Nevents;
+   int Nevents=5;
 
    // Measure runtime
    time_t start_time;
@@ -34,9 +37,9 @@ int main(int argc, char * argv[]) {
    
    // Generate output file
    char outfile_name[100];
-   sprintf(outfile_name,"/p/lscratchd/lenardo1/NewAreaCorrections/AreaCorSystematics.root");
+   sprintf(outfile_name,"./AreaCorSystematics_10-120_%d.root",atoi(argv[1]));
    TFile * outfile = new TFile(outfile_name,"RECREATE");
-  
+   std::cout << "Output file: "  << outfile_name << std::endl;
    
    // Create TTree to store important variables
    double pulse_area,
@@ -78,8 +81,10 @@ int main(int argc, char * argv[]) {
    rand.SetSeed(0);
 
    // Begin loop.
-   for(int ph=100; ph<101; ph++) {
+   for(int ph=10; ph<120; ph++) {
+     std::cout << "Pulse size: " << ph << std::endl;
      for(int event=0; event<Nevents; event++) {
+        std::cout << "Event: " << event << std::endl;
         // Get true photon count
         w.SetPhotonsInArray( ph );
         true_photon_count = ph;
@@ -99,8 +104,9 @@ int main(int argc, char * argv[]) {
         }
   
         while( photons_generated < ph ) {
-             
+                  
             w.GenPhotonsInCh();
+            //printf("PhotonsInCh = %d\n",w.GetPhotonsInCh());
             if( w.GetPhotonsInCh() > (ph - photons_generated) )  continue;
   
             w.GenPhotonArrivalTimes();
@@ -108,11 +114,11 @@ int main(int argc, char * argv[]) {
             w.GenerateWaveform();
   
             v_waveform = w.GetWaveVec();
-            Fit( v_waveform, w.GetTraceStart(), 0.01, results, results_err);
+            Fit( v_waveform, w.GetTraceStart()+123.7, 0.01, results, results_err);
             for(int i=0; i<TMath::Floor(results[0]+0.5); i++) {
               int ind = i*2 + 1; 
               fit_area[photon_count + i] = results[ind];
-              photon_times[photon_count + i] = results[ind+1];
+              photon_times[photon_count + i] = results[ind+1]-123.7;
               fit_area_index = TMath::Floor(results[ind]/0.2);
               best_weights[photon_count + i] = area_correction[pulse_area_index][fit_area_index];
   
