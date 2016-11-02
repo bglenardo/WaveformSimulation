@@ -37,7 +37,7 @@ int main(int argc, char * argv[]) {
    
    // Generate output file
    char outfile_name[100];
-   sprintf(outfile_name,"./AreaCorSystematics_10-120_%d.root",atoi(argv[1]));
+   sprintf(outfile_name,"./AreaCorSystematics_no_noise_10-120_%d.root",atoi(argv[1]));
    TFile * outfile = new TFile(outfile_name,"RECREATE");
    std::cout << "Output file: "  << outfile_name << std::endl;
    
