@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "SPEFunctions.hh"
 #include "WaveformGenerator.hh" 
+#include "NoiseSpectrum.hh"
 #include <iostream>
 
 /************************************************************************
@@ -130,16 +131,63 @@ void WaveformGenerator::GenerateWaveform() {
          x[0] = xval;
          y += singleSPE( x, par );
       }
-     y += r.Gaus(0.,0.01); 
-     waveform.SetPoint(pt_idx, xval, y);
+//     y += r.Gaus(0.,0.01); 
      wave_vec.push_back(y);
      pt_idx++;
 
   }
-
+  GenerateBaseline();
   GenPeakArea();
   GenAftTimes();
+  for(int i=0; i < (int) wave_vec.size(); i++) {
+     wave_vec[i] += r.Gaus(0.,0.01); // baseline_vec[i];
+     std::cout << baseline_vec[i] << std::endl;
+     waveform.SetPoint(i, i+start, wave_vec[i]);
+//     std::cout << baseline_vec[i] << std::endl;
+  }
+
 }
+
+/************************************************************************
+     GenerateBaseline
+************************************************************************/
+void WaveformGenerator::GenerateBaseline() {
+   baseline_vec.clear();
+
+   int N = (sizeof(NoiseBinCenter)/sizeof(*NoiseBinCenter)); // number of bins of log histogram. 
+   int num_samples = (int) wave_vec.size();
+   if (num_samples == 0) { 
+         std::cerr << "Trying to generate baseline_vec before waveform! Abort!" << std::endl;
+         return;
+   }
+   double randomPhase = 0.;// r.Uniform() * 2 * TMath::Pi();
+
+   double phe_scale = 8.4/1000.; // (4.6 phe/mV) / (1000 mV/V)
+
+
+   for(int i=0; i<N; i++) {
+
+      randomPhase = r.Uniform() * 2 * TMath::Pi();
+      if( NoiseBinCenter[i] > 3.e7 ) break;
+
+      for(int s=0; s<num_samples; s++) {
+          if(i == 0) {
+              baseline_vec.push_back( TMath::Sqrt( 2*NoiseBinWidth[i] ) * NoiseBinHeight[i] / phe_scale *
+                                  TMath::Sin( 2 * TMath::Pi() * NoiseBinCenter[i] * s * 1e-8 + randomPhase));
+          } else {
+              baseline_vec[s] += TMath::Sqrt( 2*NoiseBinWidth[i] ) * NoiseBinHeight[i] / phe_scale *
+                             TMath::Sin( 2 * TMath::Pi() * NoiseBinCenter[i] * s * 1e-8 + randomPhase);
+          }
+      }  
+
+   }
+
+   for(int i=0; i<num_samples; i++) {
+      baseline.SetPoint(i,(double) i, baseline_vec[i]);
+   }
+   
+}
+
 
 
 /************************************************************************
@@ -159,6 +207,7 @@ void WaveformGenerator::GenPeakArea() {
 
 
 }
+
 
 
 /************************************************************************

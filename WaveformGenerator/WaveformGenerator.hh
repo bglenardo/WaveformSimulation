@@ -34,7 +34,9 @@ class WaveformGenerator {
       TRandom3 r;
 
       TGraph waveform;
+      TGraph baseline;
       std::vector<double> wave_vec;
+      std::vector<double> baseline_vec;
       double trace_start;
      
    public:
@@ -43,6 +45,7 @@ class WaveformGenerator {
       void GenPhotonsInCh();
       void GenRandomPhdArea();
       void GenPhotonArrivalTimes();
+      void GenerateBaseline();
       void GenerateWaveform();  
       void GenerateNewWaveform();
       void GenPeakArea();
@@ -58,7 +61,9 @@ class WaveformGenerator {
       std::vector<double> GetAreas() { return areas; }
       double GetPeakArea() { return peak_area; }
       TGraph GetWaveform() { return waveform; }
+      TGraph GetBaseline() { return baseline; }
       std::vector<double> GetWaveVec() { return wave_vec; } 
+      std::vector<double> GetBaselineVec() { return baseline_vec; } 
       double GetTraceStart() { return trace_start; }
       double GetAftT25Samples() { return aft_t25_samples; }
       double GetAftT05Samples() { return aft_t05_samples; }
