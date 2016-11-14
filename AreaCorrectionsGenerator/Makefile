@@ -14,12 +14,12 @@ OBJS += ./build/PhotonFits.o
 OBJS += ./build/SPEFunctions.o
 OBJS += ./build/WaveformGenerator.o
 
-all: ./AreaCorrections
+all: ./AreaCorrectionsFitCut
 
-./AreaCorrections: $(OBJS) ./build/AreaCorrections.o
+./AreaCorrectionsFitCut: $(OBJS) ./build/AreaCorrectionsFitCut.o
 	$(CC) $(OSFLAGS) $(RCFLAGS) $(LFLAGS) $(RLFLAGS) $^ $(LIBS) -lMinuit -o $@
 
-./build/AreaCorrections.o: AreaCorrections.cpp $(OBJS)
+./build/AreaCorrectionsFitCut.o: AreaCorrectionsFitCut.cpp $(OBJS)
 	$(CC) $(OSFLAGS) $(CFLAGS) $(RCFLAGS) $< -o $@ 
 
 ./build/PhotonAreaDistributions.o: ../PhotonTiming/PhotonAreaDistributions_3.cpp ../PhotonTiming/PhotonAreaDistributions.h ../PhotonTiming/SPEparameters.h
@@ -41,10 +41,10 @@ clean:
 	rm -f ./build/PhotonAreaDistributions.o
 	rm -f ./build/WaveformGenerator.o
 	rm -f ./build/*.o
-	rm -f ./AreaCorrections
+	rm -f ./AreaCorrectionsFitCut
 
 distclean:
-	rm -f ./AreaCorrections
-	rm -f ./build/AreaCorrections.o
+	rm -f ./AreaCorrectionsFitCut
+	rm -f ./build/AreaCorrectionsFitCut.o
 	@echo Removing all object files from build directory.
 	@rm -f $(OBJS)

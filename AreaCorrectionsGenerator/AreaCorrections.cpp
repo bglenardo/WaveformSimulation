@@ -32,7 +32,7 @@ int main(int argc, char * argv[]) {
    time(&start_time);
    bool print_assignments = false;
    char outfile_name[100];
-   sprintf(outfile_name,"/p/lscratchd/lenardo1/NewAreaCorrections/AreaCorrections%03d_ph_0_20.root",photons_in_array);
+   sprintf(outfile_name,"/p/lscratchd/lenardo1/NewAreaCorrections/AreaCorrections%03d_new_baseline.root",photons_in_array);
    TFile * outfile = new TFile(outfile_name,"RECREATE");
    
    double results[20];

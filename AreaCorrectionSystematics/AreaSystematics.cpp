@@ -37,7 +37,7 @@ int main(int argc, char * argv[]) {
    
    // Generate output file
    char outfile_name[100];
-   sprintf(outfile_name,"./AreaCorSystematics_no_noise_10-120_%d.root",atoi(argv[1]));
+   sprintf(outfile_name,"./AreaCorSystematics_30MHz_cutoff_phd_10_10-120_%d.root",atoi(argv[1]));
    TFile * outfile = new TFile(outfile_name,"RECREATE");
    std::cout << "Output file: "  << outfile_name << std::endl;
    
@@ -120,7 +120,7 @@ int main(int argc, char * argv[]) {
               fit_area[photon_count + i] = results[ind];
               photon_times[photon_count + i] = results[ind+1]-123.7;
               fit_area_index = TMath::Floor(results[ind]/0.2);
-              best_weights[photon_count + i] = area_correction[pulse_area_index][fit_area_index];
+              best_weights[photon_count + i] = area_correction[fit_area_index][pulse_area_index];
   
             }     
             photon_count += TMath::Floor(results[0]+0.5);

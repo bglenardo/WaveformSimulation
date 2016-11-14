@@ -141,7 +141,7 @@ void WaveformGenerator::GenerateWaveform() {
   GenAftTimes();
   for(int i=0; i < (int) wave_vec.size(); i++) {
      wave_vec[i] += r.Gaus(0.,0.01); // baseline_vec[i];
-     std::cout << baseline_vec[i] << std::endl;
+//     std::cout << baseline_vec[i] << std::endl;
      waveform.SetPoint(i, i+start, wave_vec[i]);
 //     std::cout << baseline_vec[i] << std::endl;
   }
@@ -162,7 +162,7 @@ void WaveformGenerator::GenerateBaseline() {
    }
    double randomPhase = 0.;// r.Uniform() * 2 * TMath::Pi();
 
-   double phe_scale = 8.4/1000.; // (4.6 phe/mV) / (1000 mV/V)
+   double phe_scale = 10.0/1000.; // (4.6 phe/mV) / (1000 mV/V)
 
 
    for(int i=0; i<N; i++) {
