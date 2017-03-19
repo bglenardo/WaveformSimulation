@@ -13,13 +13,14 @@ OBJS += ./build/PhotonAreaDistributions.o
 OBJS += ./build/PhotonFits.o
 OBJS += ./build/SPEFunctions.o
 OBJS += ./build/WaveformGenerator.o
+OBJS += ./build/OpticalTransport.o
 
-all: ./LineupResolution
+all: ./LineupResolutionEnergyBins
 
-./LineupResolution: $(OBJS) ./build/LineupResolution.o
+./LineupResolutionEnergyBins: $(OBJS) ./build/LineupResolutionEnergyBins.o
 	$(CC) $(OSFLAGS) $(RCFLAGS) $(LFLAGS) $(RLFLAGS) $^ $(LIBS) -lMinuit -o $@
 
-./build/LineupResolution.o: LineupResolution.cpp $(OBJS)
+./build/LineupResolutionEnergyBins.o: LineupResolutionEnergyBins.cpp $(OBJS)
 	$(CC) $(OSFLAGS) $(CFLAGS) $(RCFLAGS) $< -o $@ 
 
 ./build/PhotonAreaDistributions.o: ../PhotonTiming/PhotonAreaDistributions_3.cpp ../PhotonTiming/PhotonAreaDistributions.h ../PhotonTiming/SPEparameters.h
@@ -29,6 +30,9 @@ all: ./LineupResolution
 	$(CC) $(OSFLAGS) $(CFLAGS) $(RCFLAGS) $(RLFLAGS) $< -o $@
 
 ./build/SPEFunctions.o: ../PhotonTiming/SPEFunctions_Rose_test.cpp ../PhotonTiming/SPEFunctions_Rose_test.h
+	$(CC) $(OSFLAGS) $(CFLAGS) $(RCFLAGS) $< -o $@
+
+./build/OpticalTransport.o: ../WaveformGenerator/OpticalTransport.cpp ../WaveformGenerator/OpticalTransport.hh
 	$(CC) $(OSFLAGS) $(CFLAGS) $(RCFLAGS) $< -o $@
 
 ./build/WaveformGenerator.o: ../WaveformGenerator/WaveformGenerator.cpp ../WaveformGenerator/WaveformGenerator.hh

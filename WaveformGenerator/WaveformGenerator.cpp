@@ -5,6 +5,8 @@
 #include "WaveformGenerator.hh" 
 #include "NoiseSpectrum.hh"
 #include <iostream>
+#include "OpticalTransport.hh"
+#include "TF1.h"
 
 /************************************************************************
      WaveformGenerator (constructor)
@@ -14,7 +16,12 @@ WaveformGenerator::WaveformGenerator() {
 
    t1 = 0.31;
    t3 = 2.7;
-   tr = 1.08;
+   ta = 1.118;
+   tb = 2.0;
+   A = 1.;
+   optical = TF1("optical",OpticalTransport,0.,200.,3);
+   optical.SetParameters(A,ta,tb);
+   optical.SetNpx(400);
    sig = 0.75;
    singlet_fraction = 0.4;
  
@@ -29,6 +36,29 @@ WaveformGenerator::WaveformGenerator() {
 }
 
 
+/************************************************************************
+     SetTa 
+************************************************************************/
+void WaveformGenerator::SetTa( double ta_ ) {
+    ta = ta_;
+    optical.SetParameter(1,ta_);
+}
+
+/************************************************************************
+     SetTb 
+************************************************************************/
+void WaveformGenerator::SetTb( double tb_ ) {
+    tb = tb_;
+    optical.SetParameter(2,tb_);
+}
+
+/************************************************************************
+     SetA
+************************************************************************/
+void WaveformGenerator::SetA( double A_ ) {
+    A = A_;
+    optical.SetParameter(0,A_);
+}
 
 /************************************************************************
      GenPhotonsInCh
@@ -57,7 +87,15 @@ void WaveformGenerator::GenPhotonArrivalTimes() {
 
    for(int i=0; i<photons_in_ch; i++){
      temp_time = 0.;     
-     temp_time += r.Gaus( 0., sig ) + r.Exp( tr );
+     temp_time += r.Gaus( 0., sig );
+
+     if( r.Uniform() < A && A <= 1.)
+        temp_time += r.Exp( ta );
+     else if ( r.Uniform() >= A && A <= 1. )
+        temp_time += r.Exp( tb );
+     else if ( A > 1. ) 
+        temp_time += optical.GetRandom();  
+
      if( r.Uniform() < (1. - singlet_fraction) )
         temp_time += r.Exp( t3 );
      else
@@ -137,14 +175,15 @@ void WaveformGenerator::GenerateWaveform() {
 
   }
   GenerateBaseline();
-  GenPeakArea();
-  GenAftTimes();
   for(int i=0; i < (int) wave_vec.size(); i++) {
-     wave_vec[i] += r.Gaus(0.,0.01); // baseline_vec[i];
+//     wave_vec[i] += r.Gaus(0.,0.01); // baseline_vec[i];
+     wave_vec[i] += baseline_vec[i];
 //     std::cout << baseline_vec[i] << std::endl;
      waveform.SetPoint(i, i+start, wave_vec[i]);
 //     std::cout << baseline_vec[i] << std::endl;
   }
+  GenPeakArea();
+  GenAftTimes();
 
 }
 
@@ -162,13 +201,13 @@ void WaveformGenerator::GenerateBaseline() {
    }
    double randomPhase = 0.;// r.Uniform() * 2 * TMath::Pi();
 
-   double phe_scale = 10.0/1000.; // (4.6 phe/mV) / (1000 mV/V)
+   double phe_scale = 22.0/1000.; // (4.6 phe/mV) / (1000 mV/V)
 
 
    for(int i=0; i<N; i++) {
 
       randomPhase = r.Uniform() * 2 * TMath::Pi();
-      if( NoiseBinCenter[i] > 3.e7 ) break;
+//      if( NoiseBinCenter[i] > 3.e7 ) break;
 
       for(int s=0; s<num_samples; s++) {
           if(i == 0) {
@@ -233,7 +272,7 @@ void WaveformGenerator::GenAftTimes() {
    bool found_aft_t05 = false, 
         found_aft_t25 = false;
 
-   for(int i=0; i<wave_vec.size(); i++) {
+   for(int i=0; i< (int)wave_vec.size(); i++) {
       sum += wave_vec[i];
       if( sum > 0.05*peak_area && !found_aft_t05) {
         aft_t05_samples = (double) i + trace_start;

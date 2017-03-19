@@ -13,6 +13,8 @@
 #include "TRandom3.h"
 #include <vector>
 #include "TGraph.h"
+#include "TF1.h"
+#include "OpticalTransport.hh"
 
 class WaveformGenerator {
 
@@ -27,7 +29,9 @@ class WaveformGenerator {
  
       double t1;  // Singlet time constant
       double t3;  // Triplet time constant
-      double tr;  // Reflection time constant
+      double ta;  // Reflection time constant 1
+      double tb;  // Reflection time constant 2
+      double A;  // Reflection time weightin
       double sig;  // Normal smearing
       double singlet_fraction;
 
@@ -38,6 +42,7 @@ class WaveformGenerator {
       std::vector<double> wave_vec;
       std::vector<double> baseline_vec;
       double trace_start;
+      TF1 optical;
      
    public:
       WaveformGenerator();
@@ -53,7 +58,9 @@ class WaveformGenerator {
 
       double GetT1() { return t1; }
       double GetT3() { return t3; }
-      double GetTr() { return tr; }
+      double GetTa() { return ta; }
+      double GetTb() { return tb; }
+      double GetA() { return A; }
       double GetSig() { return sig; }
       int GetPhotonsInArray() { return photons_in_array; }
       int GetPhotonsInCh()    { return photons_in_ch; }
@@ -70,12 +77,15 @@ class WaveformGenerator {
 
       void SetT1( double t1_set ) { t1 = t1_set; }
       void SetT3( double t3_set ) { t3 = t3_set; }
-      void SetTr( double tr_set ) { tr = tr_set; }
+      void SetTa( double ta_set );
+      void SetTb( double tb_set );
+      void SetA( double A_set );
       void SetSig( double sig_set ) { sig = sig_set; }
       void SetSingletFraction( double singlet_fraction_set ) { singlet_fraction = singlet_fraction_set; }
 
       void SetPhotonsInArray( int photons_in_array_set ) { photons_in_array = photons_in_array_set; }
       void SetPhotonsInCh( int photons_in_ch_set ) { photons_in_ch = photons_in_ch_set; }
+      void SetSortedTimes( std::vector<double> sorted_times_set ) { sorted_times = sorted_times_set; }
       
 };
 

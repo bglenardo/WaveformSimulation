@@ -37,7 +37,7 @@ int main(int argc, char * argv[]) {
    
    // Generate output file
    char outfile_name[100];
-   sprintf(outfile_name,"./AreaCorSystematics_30MHz_cutoff_phd_10_10-120_%d.root",atoi(argv[1]));
+   sprintf(outfile_name,"./AreaCorSystematics_30MHz_cutoff_phd_9_11-21-16_%d.root",atoi(argv[1]));
    TFile * outfile = new TFile(outfile_name,"RECREATE");
    std::cout << "Output file: "  << outfile_name << std::endl;
    
@@ -91,8 +91,6 @@ int main(int argc, char * argv[]) {
   
         // Calculate the pulse area
         pulse_area = 0.;
-        for(int i=0; i<ph; i++) pulse_area += SampleFromPhdDist();
-        pulse_area_index = TMath::Floor( pulse_area / 5. );
   
         // Create waveforms representing photons up to true photon count
         int photons_generated = 0, photons_fit = 0;
@@ -120,11 +118,12 @@ int main(int argc, char * argv[]) {
               fit_area[photon_count + i] = results[ind];
               photon_times[photon_count + i] = results[ind+1]-123.7;
               fit_area_index = TMath::Floor(results[ind]/0.2);
-              best_weights[photon_count + i] = area_correction[fit_area_index][pulse_area_index];
+              best_weights[photon_count + i] = results[ind]*1.04;
   
             }     
             photon_count += TMath::Floor(results[0]+0.5);
             photons_generated += w.GetPhotonsInCh();
+            pulse_area += w.GetPeakArea(); 
         }
         outtree->Fill();
      }
