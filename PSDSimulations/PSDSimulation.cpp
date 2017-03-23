@@ -10,7 +10,8 @@ using namespace std;
 
 int main(int argc, char * argv[]) {
 
-  TFile * file = new TFile("dd_PSD_40-50.root","RECREATE");
+//  TFile * file = new TFile("dd_PSD_40-50_with_uncorrection.root","RECREATE");
+  TFile * file = new TFile("test_sig_27.root","RECREATE");
   TGraph waveform;
 
   TH1F * h_PSD = new TH1F("h_PSD","h_PSD",50,0.,1.);
@@ -23,7 +24,7 @@ int main(int argc, char * argv[]) {
     w.SetSingletFraction(1. - 1./(1 + 0.347));
     w.SetT1(0.362);
     w.SetT3(2.40);
-    w.SetSig(0.47);
+    w.SetSig(0.27);
     w.SetA(1.07);
     w.SetTa(1.12);
     w.SetTb(0.235);
@@ -39,12 +40,12 @@ int main(int argc, char * argv[]) {
   double prompt_sum = 0.;
   double total_sum = 0.;
 
-  for(int i=0; i<100000; i++) {
+  for(int i=0; i<10000; i++) {
 
     prompt_sum = 0.;
     total_sum = 0.;
 
-    if( i % 10000 == 0 )
+    if( i % 1000 == 0 )
        std::cout << "Running event " << i << std::endl;
     
     n_ph = (int) TMath::Floor( rando.Uniform() * 10. ) + 40;
@@ -56,8 +57,8 @@ int main(int argc, char * argv[]) {
 
     sorted_times = w.GetSortedTimes();
     areas = w.GetAreas();    
-    T05 = w.GetAftT05Samples() + 0.8;
-    T25 = w.GetAftT25Samples() + 0.8;
+    T05 = w.GetAftT05Samples();
+    T25 = w.GetAftT25Samples();
 
     for( int j=0; j<n_ph; j++){
       if( (sorted_times[j] >= T05-1.4) && (sorted_times[j] <= T05+13.) )

@@ -7,6 +7,8 @@
 #include <iostream>
 #include "OpticalTransport.hh"
 #include "TF1.h"
+#include "corrections/PMTInfo.h"
+#include "corrections/DAQ_Corrections.h"
 
 /************************************************************************
      WaveformGenerator (constructor)
@@ -101,11 +103,48 @@ void WaveformGenerator::GenPhotonArrivalTimes() {
      else
         temp_time += r.Exp( t1 );
      sorted_times.push_back(temp_time);
+
+     uncorrected_sorted_times.push_back(temp_time + GenUncorrectionTime() );
+
+
    }
    
    std::sort( sorted_times.begin(), sorted_times.end() );
+   std::sort( uncorrected_sorted_times.begin(), uncorrected_sorted_times.end() );
 
    return;
+}
+
+
+/************************************************************************
+     GenUncorrectionTime
+************************************************************************/
+double WaveformGenerator::GenUncorrectionTime() {
+
+     int ch = 106;     
+     while( daq_correction[ch] < -1000 ) {
+       if( r.Uniform() < 0.71 ) {
+         ch = TMath::Floor( r.Uniform() * 61 ) + 60;
+         if( ch == 120 ) ch = 121;
+       } else {
+         ch = TMath::Floor( r.Uniform() * 61 );
+         if( ch == 60 ) ch = 120;
+       }
+     }
+
+     double z_pmt;
+     if( ch < 60 || ch == 120 )
+         z_pmt = 59.;
+     else
+         z_pmt = -1.; 
+     double path_time = TMath::Sqrt( (0. - PMT[ch][0])*(0. - PMT[ch][0]) +
+                         (0. - PMT[ch][1])*(0. - PMT[ch][1]) +
+                         (46. - z_pmt)*( 46. -z_pmt) ) / 19.2 / 10.;
+ 
+//    printf("Correction: %f\t Ch: %d\n",path_time + daq_correction[ch],ch);
+
+    return path_time + daq_correction[ch];
+
 }
 
 /************************************************************************
@@ -159,18 +198,22 @@ void WaveformGenerator::GenerateWaveform() {
    double x[1];
    double par[2];
    double y = 0;
+   double y_un = 0;
    double pt_idx = 0;
 
 
    for(double xval=start; xval<end; xval += 1.){
       y = 0.;
+      y_un = 0.;
       for(int ii=0; ii<photons_in_ch; ii++) {
          par[0] = areas[ii]; par[1] = sorted_times[ii];
          x[0] = xval;
          y += singleSPE( x, par );
+         par[0] = areas[ii]; par[1] = uncorrected_sorted_times[ii];
+         y_un += singleSPE( x, par );
       }
-//     y += r.Gaus(0.,0.01); 
      wave_vec.push_back(y);
+     uncorrected_wave_vec.push_back(y_un);
      pt_idx++;
 
   }
@@ -178,6 +221,7 @@ void WaveformGenerator::GenerateWaveform() {
   for(int i=0; i < (int) wave_vec.size(); i++) {
 //     wave_vec[i] += r.Gaus(0.,0.01); // baseline_vec[i];
      wave_vec[i] += baseline_vec[i];
+     uncorrected_wave_vec[i] += baseline_vec[i];
 //     std::cout << baseline_vec[i] << std::endl;
      waveform.SetPoint(i, i+start, wave_vec[i]);
 //     std::cout << baseline_vec[i] << std::endl;
@@ -272,8 +316,8 @@ void WaveformGenerator::GenAftTimes() {
    bool found_aft_t05 = false, 
         found_aft_t25 = false;
 
-   for(int i=0; i< (int)wave_vec.size(); i++) {
-      sum += wave_vec[i];
+   for(int i=0; i< (int)uncorrected_wave_vec.size(); i++) {
+      sum += uncorrected_wave_vec[i];
       if( sum > 0.05*peak_area && !found_aft_t05) {
         aft_t05_samples = (double) i + trace_start;
         found_aft_t05 = true;

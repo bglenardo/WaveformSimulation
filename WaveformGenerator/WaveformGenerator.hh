@@ -22,6 +22,7 @@ class WaveformGenerator {
       int photons_in_array;
       int photons_in_ch;
       std::vector<double> sorted_times;
+      std::vector<double> uncorrected_sorted_times;
       std::vector<double> areas;     
       double peak_area;
       double aft_t05_samples;
@@ -40,6 +41,7 @@ class WaveformGenerator {
       TGraph waveform;
       TGraph baseline;
       std::vector<double> wave_vec;
+      std::vector<double> uncorrected_wave_vec;
       std::vector<double> baseline_vec;
       double trace_start;
       TF1 optical;
@@ -50,6 +52,7 @@ class WaveformGenerator {
       void GenPhotonsInCh();
       void GenRandomPhdArea();
       void GenPhotonArrivalTimes();
+      double GenUncorrectionTime();
       void GenerateBaseline();
       void GenerateWaveform();  
       void GenerateNewWaveform();
