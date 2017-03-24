@@ -81,7 +81,7 @@ int main(int argc, char * argv[]) {
     if( i % 5000 == 0 )
        std::cout << "Running event " << i << " of " << num_events <<  std::endl;
     
-    n_ph = (int) TMath::Floor( rando.Uniform() * 10. ) + 40;
+    n_ph = (int) TMath::Floor( rando.Uniform() * (range_max-range_min) ) + range_min;
    
     w.SetPhotonsInCh( n_ph );
     w.GenPhotonArrivalTimes();
