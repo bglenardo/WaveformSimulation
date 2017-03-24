@@ -24,7 +24,7 @@ WaveformGenerator::WaveformGenerator() {
    optical = TF1("optical",OpticalTransport,0.,200.,3);
    optical.SetParameters(A,ta,tb);
    optical.SetNpx(400);
-   sig = 0.75;
+   sig = 0.175;
    singlet_fraction = 0.4;
  
    r.SetSeed(0);
@@ -84,6 +84,7 @@ void WaveformGenerator::GenPhotonArrivalTimes() {
    if( photons_in_ch == 0 ) return;   
 
    sorted_times.clear();
+   uncorrected_sorted_times.clear();
 
    double temp_time = 0.;
 
@@ -105,7 +106,6 @@ void WaveformGenerator::GenPhotonArrivalTimes() {
      sorted_times.push_back(temp_time);
 
      uncorrected_sorted_times.push_back(temp_time + GenUncorrectionTime() );
-
 
    }
    
@@ -142,7 +142,6 @@ double WaveformGenerator::GenUncorrectionTime() {
                          (46. - z_pmt)*( 46. -z_pmt) ) / 19.2 / 10.;
  
 //    printf("Correction: %f\t Ch: %d\n",path_time + daq_correction[ch],ch);
-
     return path_time + daq_correction[ch];
 
 }
@@ -183,6 +182,7 @@ void WaveformGenerator::GenerateWaveform() {
    double start = -20.;
    double end = 30.;
    wave_vec.clear();
+   uncorrected_wave_vec.clear();
    waveform.Set(0);
    trace_start = -100.;
    aft_t25_samples = -100.;
@@ -224,6 +224,7 @@ void WaveformGenerator::GenerateWaveform() {
      uncorrected_wave_vec[i] += baseline_vec[i];
 //     std::cout << baseline_vec[i] << std::endl;
      waveform.SetPoint(i, i+start, wave_vec[i]);
+     uncorrected_waveform.SetPoint(i, i+start, uncorrected_wave_vec[i]);
 //     std::cout << baseline_vec[i] << std::endl;
   }
   GenPeakArea();
@@ -284,8 +285,8 @@ void WaveformGenerator::GenPeakArea() {
       return;
    }
 
-   for( std::vector<double>::size_type i=0; i<wave_vec.size(); i++) {
-     peak_area += wave_vec[i];
+   for( std::vector<double>::size_type i=0; i<uncorrected_wave_vec.size(); i++) {
+     peak_area += uncorrected_wave_vec[i];
    }
 
 
@@ -318,10 +319,11 @@ void WaveformGenerator::GenAftTimes() {
 
    for(int i=0; i< (int)uncorrected_wave_vec.size(); i++) {
       sum += uncorrected_wave_vec[i];
-      if( sum > 0.05*peak_area && !found_aft_t05) {
+      if( sum < 0.05*peak_area /*&& !found_aft_t05*/ ) {
         aft_t05_samples = (double) i + trace_start;
         found_aft_t05 = true;
       }
+      //printf("%f\t%f\n",uncorrected_wave_vec[i],aft_t05_samples);
       if( sum > 0.25*peak_area && !found_aft_t25) {
         aft_t25_samples = (double) i + trace_start;
         found_aft_t25 = true;

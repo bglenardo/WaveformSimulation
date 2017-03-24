@@ -39,6 +39,7 @@ class WaveformGenerator {
       TRandom3 r;
 
       TGraph waveform;
+      TGraph uncorrected_waveform;
       TGraph baseline;
       std::vector<double> wave_vec;
       std::vector<double> uncorrected_wave_vec;
@@ -68,9 +69,11 @@ class WaveformGenerator {
       int GetPhotonsInArray() { return photons_in_array; }
       int GetPhotonsInCh()    { return photons_in_ch; }
       std::vector<double> GetSortedTimes() { return sorted_times; }
+      std::vector<double> GetUncorrectedSortedTimes() { return uncorrected_sorted_times; }
       std::vector<double> GetAreas() { return areas; }
       double GetPeakArea() { return peak_area; }
       TGraph GetWaveform() { return waveform; }
+      TGraph GetUncorrectedWaveform() { return uncorrected_waveform; }
       TGraph GetBaseline() { return baseline; }
       std::vector<double> GetWaveVec() { return wave_vec; } 
       std::vector<double> GetBaselineVec() { return baseline_vec; } 

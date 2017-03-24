@@ -25,7 +25,7 @@ double dd[6][2] = {
 
 int main(int argc, char * argv[]) {
 
-  TFile * file = new TFile("energy_bin_sigmas_offsets_it02_transit_time_mod.root","RECREATE");
+  TFile * file = new TFile("energy_bin_sigmas_offsets_it02_transit_time_mod_noise_18.root","RECREATE");
   TGraph waveform;
 
   TH1F * tt_h_aft_25[6];
@@ -54,12 +54,12 @@ int main(int argc, char * argv[]) {
     w.SetTa(1.118);
     w.SetTb(0.2358);
     w.SetA(1.070);
-    w.SetSig(0.345);
+    w.SetSig(0.17);
   int n_ph;  
 
-  for(int k=0; k<6; k++) { 
+  for(int k=4; k<5; k++) { 
     for(int i=0; i<10000; i++) {
-      if( i % 100 == 0 )
+      if( i % 1000 == 0 )
          std::cout << "Running event " << i << std::endl;
       
       n_ph = (int) TMath::Floor( rando.Gaus(tritium[k][0],tritium[k][1])+0.5 );
@@ -82,7 +82,7 @@ int main(int argc, char * argv[]) {
   
 
 
-  for(int k=0; k<6; k++) { 
+  for(int k=0; k<0; k++) { 
     for(int i=0; i<10000; i++) {
       if( i % 100 == 0 )
          std::cout << "Running event " << i << std::endl;
