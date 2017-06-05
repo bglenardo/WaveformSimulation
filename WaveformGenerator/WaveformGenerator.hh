@@ -27,14 +27,17 @@ class WaveformGenerator {
       double peak_area;
       double aft_t05_samples;
       double aft_t25_samples;
- 
+
+      // Event-level variables
+      double drift_time; 
       double t1;  // Singlet time constant
       double t3;  // Triplet time constant
+      double singlet_fraction;
       double ta;  // Reflection time constant 1
       double tb;  // Reflection time constant 2
-      double A;  // Reflection time weightin
+      double A;  // Fraction of immediate arrivals
+      double B;  // Reflection time weighting
       double sig;  // Normal smearing
-      double singlet_fraction;
 
       TRandom3 r;
 
@@ -53,7 +56,7 @@ class WaveformGenerator {
       void GenPhotonsInCh();
       void GenRandomPhdArea();
       void GenPhotonArrivalTimes();
-      double GenUncorrectionTime();
+      double GenUncorrectionTime( int ch );
       void GenerateBaseline();
       void GenerateWaveform();  
       void GenerateNewWaveform();
@@ -66,6 +69,7 @@ class WaveformGenerator {
       double GetTb() { return tb; }
       double GetA() { return A; }
       double GetSig() { return sig; }
+      double GetDriftTime() { return drift_time; }
       int GetPhotonsInArray() { return photons_in_array; }
       int GetPhotonsInCh()    { return photons_in_ch; }
       std::vector<double> GetSortedTimes() { return sorted_times; }
@@ -88,6 +92,7 @@ class WaveformGenerator {
       void SetA( double A_set );
       void SetSig( double sig_set ) { sig = sig_set; }
       void SetSingletFraction( double singlet_fraction_set ) { singlet_fraction = singlet_fraction_set; }
+      void SetDriftTime( double drift_time_set ) { drift_time = drift_time_set; }
 
       void SetPhotonsInArray( int photons_in_array_set ) { photons_in_array = photons_in_array_set; }
       void SetPhotonsInCh( int photons_in_ch_set ) { photons_in_ch = photons_in_ch_set; }

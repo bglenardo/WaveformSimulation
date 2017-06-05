@@ -9,6 +9,7 @@
 #include "TF1.h"
 #include "corrections/PMTInfo.h"
 #include "corrections/DAQ_Corrections.h"
+#include "corrections/DAQ_Errors_04.h"
 
 /************************************************************************
      WaveformGenerator (constructor)
@@ -20,9 +21,10 @@ WaveformGenerator::WaveformGenerator() {
    t3 = 2.7;
    ta = 1.118;
    tb = 2.0;
-   A = 1.;
+   A = 0.088;
+   B = 1.;
    optical = TF1("optical",OpticalTransport,0.,200.,3);
-   optical.SetParameters(A,ta,tb);
+   optical.SetParameters(B,ta,tb);
    optical.SetNpx(400);
    sig = 0.175;
    singlet_fraction = 0.4;
@@ -59,7 +61,14 @@ void WaveformGenerator::SetTb( double tb_ ) {
 ************************************************************************/
 void WaveformGenerator::SetA( double A_ ) {
     A = A_;
-    optical.SetParameter(0,A_);
+}
+
+/************************************************************************
+     SetB
+************************************************************************/
+void WaveformGenerator::SetB( double B_ ) {
+    B = B_;
+    optical.SetParameter(0,B_);
 }
 
 /************************************************************************
@@ -92,20 +101,24 @@ void WaveformGenerator::GenPhotonArrivalTimes() {
      temp_time = 0.;     
      temp_time += r.Gaus( 0., sig );
 
-     if( r.Uniform() < A && A <= 1.)
-        temp_time += r.Exp( ta );
-     else if ( r.Uniform() >= A && A <= 1. )
-        temp_time += r.Exp( tb );
-     else if ( A > 1. ) 
-        temp_time += optical.GetRandom();  
+     if( r.Uniform() > A ) {
+       if( r.Uniform() < B && B <= 1.)
+          temp_time += r.Exp( ta );
+       else if ( r.Uniform() >= B && B <= 1. )
+          temp_time += r.Exp( tb );
+       else if ( B > 1. ) 
+          temp_time += optical.GetRandom();  
+     }
 
      if( r.Uniform() < (1. - singlet_fraction) )
         temp_time += r.Exp( t3 );
      else
         temp_time += r.Exp( t1 );
-     sorted_times.push_back(temp_time);
+     temp_ch = GenChannelNum();
 
-     uncorrected_sorted_times.push_back(temp_time + GenUncorrectionTime() );
+     sorted_times.push_back(temp_time + daq_errors[temp_ch]/10.);
+
+     uncorrected_sorted_times.push_back(temp_time + GenUncorrectionTime( temp_ch ) );
 
    }
    
@@ -119,24 +132,24 @@ void WaveformGenerator::GenPhotonArrivalTimes() {
 /************************************************************************
      GenUncorrectionTime
 ************************************************************************/
-double WaveformGenerator::GenUncorrectionTime() {
-
-     int ch = 106;     
-     while( daq_correction[ch] < -1000 ) {
-       if( r.Uniform() < 0.71 ) {
-         ch = TMath::Floor( r.Uniform() * 61 ) + 60;
-         if( ch == 120 ) ch = 121;
-       } else {
-         ch = TMath::Floor( r.Uniform() * 61 );
-         if( ch == 60 ) ch = 120;
-       }
-     }
+double WaveformGenerator::GenUncorrectionTime( int ch ) {
 
      double z_pmt;
      if( ch < 60 || ch == 120 )
          z_pmt = 59.;
      else
          z_pmt = -1.; 
+     double z = drift_time * 1.5 / 10.; // converts us to cm
+     // The following block uniformly distributes events in x/y
+     double t, u, ra;
+     t = 2 * TMath::Pi() * r.Uniform();
+     u = (r.Uniform() + r.Uniform())*20.;
+     if( u > 20. ) ra = 40. - u; 
+     else  ra = u;
+     double x = ra * TMath::Cos(t);
+     double y = ra * TMath::Sin(t);
+
+     // Compute direct-path time (which is subtracted off in real data)
      double path_time = TMath::Sqrt( (0. - PMT[ch][0])*(0. - PMT[ch][0]) +
                          (0. - PMT[ch][1])*(0. - PMT[ch][1]) +
                          (46. - z_pmt)*( 46. -z_pmt) ) / 19.2 / 10.;
@@ -145,6 +158,36 @@ double WaveformGenerator::GenUncorrectionTime() {
     return path_time + daq_correction[ch];
 
 }
+
+
+/************************************************************************
+     GenChannelNum
+************************************************************************/
+int WaveformGenerator::GenChannelNum() {
+
+     // Coefficients for probability for photons to arrive in the top
+     // PMT array. Fit by Evan Pease to tritium data.
+     topArrayProbabilityCoeffs[0] = 1.10677683e-07;
+     topArrayProbabilityCoeffs[1] = -7.23082313e-04; 
+     topArrayProbabilityCoeffs[2] = 3.36092810e-01; 
+
+     topProb = topArrayProbabilityCoeffs[0]*drift_time*drift_time +
+               topArrayProbabilityCoeffs[1]*drift_time +
+               topArrayProbabilityCoeffs[0];
+
+     int ch = 106;     
+     while( daq_correction[ch] < -1000 ) {
+       if( r.Uniform() < 1. - topProb ) {
+         ch = TMath::Floor( r.Uniform() * 61 ) + 60;
+         if( ch == 120 ) ch = 121;
+       } else {
+         ch = TMath::Floor( r.Uniform() * 61 );
+         if( ch == 60 ) ch = 120;
+       }
+     }
+     return ch;
+}
+
 
 /************************************************************************
      GenRandomPhdArea
